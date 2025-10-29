@@ -26,14 +26,13 @@ import java.util.Optional;
 @Plugin(id = "wafelzwaardproxy", name = "wafelzwaardproxy", version = "1.0-SNAPSHOT", description = "wafelzwaardproxy", authors = {"Verschillend"})
 public class Wafelzwaardproxy {
 
+    private HikariDataSource dataSource;
+
     @Inject
     private ProxyServer server;
 
     @Inject
     private Logger logger;
-
-    @Inject
-    private DataSource dataSource;
 
     @Inject
     public Wafelzwaardproxy(ProxyServer server, Logger logger) {
@@ -62,6 +61,7 @@ public class Wafelzwaardproxy {
     }
 
 
+
     private void setupDatabase() {
         try {
             HikariConfig config = new HikariConfig();
@@ -76,7 +76,7 @@ public class Wafelzwaardproxy {
             config.setIdleTimeout(600000);
             config.setMaxLifetime(1800000);
 
-            dataSource = new HikariDataSource(config);
+            dataSource = new HikariDataSource(config); // initialize manually
             logger.info("Connected to database.");
         } catch (Exception e) {
             logger.error("Failed to connect to database", e);
