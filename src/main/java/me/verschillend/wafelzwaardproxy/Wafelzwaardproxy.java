@@ -49,15 +49,17 @@ public class Wafelzwaardproxy {
     @Subscribe
     public void onProxyPing(ProxyPingEvent event) {
         int totalPlayers = getTotalPlayerCount();
+        logger.info("Total player count from DB: {}", totalPlayers);
 
         ServerPing original = event.getPing();
-        int maxPlayers = original.getPlayers().map(ServerPing.Players::getMax).orElse(1000);
+        ServerPing.Players players = original.getPlayers().orElse(new ServerPing.Players(0, 1000, java.util.List.of()));
 
-        ServerPing.Builder pingBuilder = original.asBuilder();
-        pingBuilder.onlinePlayers(totalPlayers);
-        pingBuilder.maximumPlayers(maxPlayers);
+        ServerPing newPing = original.asBuilder()
+                .onlinePlayers(totalPlayers)
+                .maximumPlayers(players.getMax())
+                .build();
 
-        event.setPing(pingBuilder.build());
+        event.setPing(newPing);
     }
 
 
@@ -89,6 +91,7 @@ public class Wafelzwaardproxy {
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) return rs.getInt("total");
+            return 0;
         } catch (SQLException e) {
             logger.error("Failed to get total player count", e);
         }
